@@ -1,0 +1,5 @@
+export enum STORE_ROLES {
+  OWNER = 'OWNER',
+  ATTENDANT = 'ATTENDANT',
+  MANAGER = 'MANAGER'
+}

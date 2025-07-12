@@ -1,0 +1,4 @@
+export const RATING_TYPE = {
+    STORE_RATINGS: 'STORE',
+    PRODUCT_RATINGS: 'PRODUCT'
+}
