@@ -71,7 +71,7 @@
     "@types/express": "^4.17.13",
     "@types/jsonwebtoken": "^8.5.8",
     "@types/morgan": "^1.9.3",
-    "@types/node": "^16.11.10",
+    "@types/node": "^16.18.126",
     "@types/slug": "^5.0.3",
     "@types/winston": "^2.4.4",
     "eslint": "^8.23.0",
