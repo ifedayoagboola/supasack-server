@@ -29,7 +29,7 @@ app.get('/', (req, res) =>
   })
 );
 
-app.use(variables.app.baseRouter, v1Router);
+app.use(variables.app.baseRouter || '/v1', v1Router);
 
 app.use(errorMiddleware);
 

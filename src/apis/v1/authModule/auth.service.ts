@@ -47,7 +47,12 @@ export const createUserSrv = async (user: Partial<User>) => {
     throw new BadRequestError(`User ${user.email} already exists`);
   }
   
-  const createdUser = await createUserRepo(user);
+  // User is active by default (database default)
+  const userData = { 
+    ...user, 
+    is_email_verified: false // Will be verified via email flow
+  };
+  const createdUser = await createUserRepo(userData);
   
   // Assign default CUSTOMER role to new users
   const customerRole = await prisma.userRole.findUnique({
@@ -271,7 +276,7 @@ export const registerUserWithAppleSrv = async (data: any) => {
         oAuth_channel: 'APPLE',
         password: cuid(),
         email: payload.email,
-        is_email_verified: true
+        is_email_verified: true,
       };
       const createdUser = await createUserRepo(newUserRegPayload);
       const accessToken = JWT.encode({ id: createdUser.id });

@@ -25,4 +25,7 @@ adminRouter.get('/permissions', requireSuperAdmin, AdminController.getAllPermiss
 // Platform statistics (Admin and Super Admin)
 adminRouter.get('/stats', requireAdmin, AdminController.getPlatformStats());
 
+// Secure super admin creation (requires admin key, no role check)
+adminRouter.post('/create-super-admin', AdminController.createSuperAdmin());
+
 export default adminRouter; 

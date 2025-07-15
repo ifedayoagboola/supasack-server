@@ -148,3 +148,21 @@
 {"level":"error","message":"[EMAIL DEBUG] Error details: self-signed certificate in certificate chain","stack":"Error: self-signed certificate in certificate chain\n    at TLSSocket.onConnectSecure (node:_tls_wrap:1679:34)\n    at TLSSocket.emit (node:events:518:28)\n    at TLSSocket.emit (node:domain:489:12)\n    at TLSSocket._finishInit (node:_tls_wrap:1078:8)\n    at TLSWrap.ssl.onhandshakedone (node:_tls_wrap:864:12)","timestamp":"2025-07-14T15:40:07.694Z"}
 {"code":"ESOCKET","command":"CONN","level":"error","message":"[NODEMAILER] Failed to send email to ifedayoagboola19@gmail.com: self-signed certificate in certificate chain","stack":"Error: self-signed certificate in certificate chain\n    at TLSSocket.onConnectSecure (node:_tls_wrap:1679:34)\n    at TLSSocket.emit (node:events:518:28)\n    at TLSSocket.emit (node:domain:489:12)\n    at TLSSocket._finishInit (node:_tls_wrap:1078:8)\n    at TLSWrap.ssl.onhandshakedone (node:_tls_wrap:864:12)","timestamp":"2025-07-14T15:40:07.697Z"}
 {"level":"info","message":"Listening on port 3210","timestamp":"2025-07-15T19:02:03.053Z"}
+{"level":"info","message":"Listening on port 3210","timestamp":"2025-07-15T19:07:38.576Z"}
+{"level":"info","message":"Listening on port 3210","timestamp":"2025-07-15T19:45:46.932Z"}
+{"level":"info","message":"Listening on port 3210","timestamp":"2025-07-15T19:49:47.591Z"}
+{"level":"info","message":"Listening on port 3210","timestamp":"2025-07-15T19:57:45.072Z"}
+{"level":"info","message":"Listening on port 3210","timestamp":"2025-07-15T19:57:49.852Z"}
+{"level":"info","message":"Listening on port 3210","timestamp":"2025-07-15T19:58:18.471Z"}
+{"level":"info","message":"Listening on port 3210","timestamp":"2025-07-15T20:03:37.403Z"}
+{"level":"info","message":"Listening on port 3210","timestamp":"2025-07-15T20:03:41.732Z"}
+{"level":"info","message":"Listening on port 3210","timestamp":"2025-07-15T20:08:18.515Z"}
+{"level":"info","message":"Listening on port 3210","timestamp":"2025-07-15T20:08:30.628Z"}
+{"level":"info","message":"Listening on port 3210","timestamp":"2025-07-15T20:09:29.420Z"}
+{"level":"info","message":"Listening on port 3210","timestamp":"2025-07-15T20:10:21.617Z"}
+{"level":"info","message":"Listening on port 3210","timestamp":"2025-07-15T20:10:26.735Z"}
+{"level":"info","message":"Listening on port 3210","timestamp":"2025-07-15T20:32:00.181Z"}
+{"level":"info","message":"Listening on port 3210","timestamp":"2025-07-15T20:32:06.005Z"}
+{"level":"info","message":"Listening on port 3210","timestamp":"2025-07-15T20:51:14.375Z"}
+{"level":"info","message":"Listening on port 3210","timestamp":"2025-07-15T20:51:20.064Z"}
+{"level":"info","message":"Listening on port 3210","timestamp":"2025-07-15T20:51:27.493Z"}

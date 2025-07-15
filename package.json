@@ -11,6 +11,8 @@
     "db:prepare": "prisma format && prisma generate",
     "db:migrate": " npm run db:prepare && prisma migrate dev",
     "db:seed": "ts-node prisma/seed.ts",
+    "create-admin": "node scripts/create-super-admin-secure.js",
+    "check-roles": "node scripts/check-roles.js",
     "start": "npm run build && node dist/src/server.js",
     "prebuild": "rm -rf dist/*",
     "build": "tsc --project tsconfig.json && tscpaths -p tsconfig.json -s . -o ./dist",

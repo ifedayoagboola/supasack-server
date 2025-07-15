@@ -32,6 +32,25 @@ Supasack is a multi-vendor marketplace that makes it easy to find and order Afri
 5. Run `npm run db:seed` to seed initial data (categories, roles, etc.)
 6. Run `npm run start:dev` to start the development server
 
+## 🔐 Admin Security
+
+**Important**: Before creating admin users, read the [Admin Security Guide](./ADMIN_SECURITY.md) to understand the security measures in place.
+
+To create your first super admin:
+```bash
+# Set admin key in environment
+export ADMIN_KEY=your-secure-key
+
+# Create super admin
+npm run create-admin your-email@example.com
+```
+
+## 👥 User Management
+
+- **Registration**: Users are active by default (no manual activation needed)
+- **Roles**: Check current roles with `npm run check-roles`
+- **Security**: See [User Activation Strategies](./USER_ACTIVATION_STRATEGIES.md) for details
+
 ## Environment Variables
 
 Create a `.env` file with the following variables:

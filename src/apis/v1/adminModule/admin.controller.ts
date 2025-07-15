@@ -303,6 +303,64 @@ const AdminController = {
     } catch (error) {
       next(error);
     }
+  },
+
+  // Secure super admin creation (requires admin key)
+  createSuperAdmin: (): RequestHandler => async (req, res, next) => {
+    try {
+      const { adminKey, userEmail } = req.body;
+
+      // Verify admin key from environment
+      if (adminKey !== process.env.ADMIN_KEY) {
+        throw new BadRequestError('Invalid admin key');
+      }
+
+      // Check if SUPER_ADMIN role exists
+      const superAdminRole = await prisma.userRole.findUnique({
+        where: { name: USER_ROLES.SUPER_ADMIN }
+      });
+
+      if (!superAdminRole) {
+        throw new BadRequestError('SUPER_ADMIN role not found. Please run the seed script first.');
+      }
+
+      // Find the user by email
+      const user = await prisma.user.findFirst({
+        where: { email: userEmail },
+        include: { user_role: true }
+      });
+
+      if (!user) {
+        throw new BadRequestError(`User with email ${userEmail} not found.`);
+      }
+
+      // Check if user is already a super admin
+      if (user.user_role && user.user_role.name === USER_ROLES.SUPER_ADMIN) {
+        throw new BadRequestError(`User ${userEmail} is already a SUPER_ADMIN.`);
+      }
+
+      // Assign SUPER_ADMIN role to user
+      const updatedUser = await prisma.user.update({
+        where: { id: user.id },
+        data: { user_role_id: superAdminRole.id },
+        include: {
+          user_role: true
+        }
+      });
+
+      logger.info(`${logPrefix} User ${userEmail} promoted to SUPER_ADMIN`);
+
+      respond(res, {
+        message: `Successfully promoted ${userEmail} to SUPER_ADMIN role.`,
+        user: {
+          id: updatedUser.id,
+          email: updatedUser.email,
+          role: updatedUser.user_role?.name
+        }
+      }, StatusCodes.OK);
+    } catch (error) {
+      next(error);
+    }
   }
 };
 

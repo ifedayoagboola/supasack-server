@@ -24,9 +24,10 @@ export const authorize = (options: AuthorizeOptions = {}) => {
         return next(new NotAuthorizedError('User account is deleted'));
       }
 
-      // Check if user is active
+      // Check if user is active (for now, all users are active by default)
+      // In the future, this could be replaced with email verification check
       if (!user.active) {
-        return next(new NotAuthorizedError('User account is not active'));
+        return next(new NotAuthorizedError('Account access is temporarily suspended. Please contact support.'));
       }
 
       // Get user role

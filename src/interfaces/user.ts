@@ -5,6 +5,7 @@ export interface User {
   email: string;
   password: string;
   active: boolean;
+  is_email_verified: boolean;
   mobile: string;
   is_mobile_verified: boolean;
   sex: string;
