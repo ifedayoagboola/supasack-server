@@ -16,6 +16,7 @@ import dashboardRouter from '../v1/dashboardModule/dashboard.routes';
 import wishlistRouter from '../v1/wishlistModule/wishlist.routes';
 import transactionRouter from '../v1/transactionModule.ts/transactions.route';
 import waitlistRouter from '../v1/waitlist/waitlist.route';
+import adminRouter from '../v1/adminModule/admin.route';
 
 const v1Router = Router();
 
@@ -37,5 +38,6 @@ v1Router.use('/wishlist', wishlistRouter);
 v1Router.use('/dashboard', dashboardRouter);
 v1Router.use('/transactions', transactionRouter)
 v1Router.use('/waitlist', waitlistRouter);
+v1Router.use('/admin', adminRouter);
 
 export default v1Router;

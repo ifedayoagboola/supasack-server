@@ -1,76 +1,60 @@
-import { PrismaClient } from '@prisma/client';
-import { globalFilter } from '@src/constants';
+import { Product } from '@src/interfaces/product';
+import prisma from '@src/apis/middleware/db';
 import { IStatus } from '@src/interfaces/generals';
-import { Advert, Product } from '@src/interfaces/product';
+import { globalFilter } from '@src/constants';
 import { subDays, format } from 'date-fns';
 
-const prisma = new PrismaClient();
-
-// prisma.$use(async (params, next) => {
-//   // if (params.action === 'create') {
-//   // }
-//   // return next(params);
-// });
-
 const randomIntFromInterval = (min: number = 0, max: number = 20)  => {
-  return Math.floor(Math.random() * (max - min + 1) + min)
-}
+  return Math.floor(Math.random() * (max - min + 1) + min);
+};
 
-export const createProductRepo = async (productDetails: Partial<Product>): Promise<Product> => {
-  const { name, description, slug, category_id, user_id, status, store_id, estimated_delivery_duration } = productDetails;
+export const createProductRepo = async (productDetails: any): Promise<Product> => {
   const product = await prisma.product.create({
     data: {
-      name,
-      description,
-      slug,
-      status,
-      category_id,
-      user_id,
-      store_id,
-      estimated_delivery_duration
+      name: productDetails.name,
+      description: productDetails.description,
+      slug: productDetails.slug,
+      status: productDetails.status,
+      category_id: productDetails.category_id,
+      user_id: productDetails.user_id,
+      store_id: productDetails.store_id,
+      estimated_delivery_duration: productDetails.estimated_delivery_duration
     }
   });
   return product;
 };
 
-// export const createAdvert = async (advert: Partial<Advert>): Promise<Advert> => {
-//   const {store_name, product_name, store_link, amount}
-//   return 
-// }  
-
-export const createProductSpecialRepo = async (productDetails: Partial<Product>): Promise<Product> => {
-  const { id, name, description, slug, category_id, user_id, status, store_id, estimated_delivery_duration } = productDetails;
+export const createProductSpecialRepo = async (productDetails: any): Promise<Product> => {
   const product = await prisma.product.create({
     data: {
-      id,
-      name,
-      description,
-      slug,
-      status,
-      category_id,
-      user_id,
-      store_id,
-      estimated_delivery_duration
+      name: productDetails.name,
+      description: productDetails.description,
+      slug: productDetails.slug,
+      status: productDetails.status,
+      category_id: productDetails.category_id,
+      user_id: productDetails.user_id,
+      store_id: productDetails.store_id,
+      estimated_delivery_duration: productDetails.estimated_delivery_duration
     }
   });
   return product;
 };
 
-export const createBulkProductRepo = async (productDetails: Partial<Product[]>): Promise<any> => {
+export const createBulkProductRepo = async (productDetails: any): Promise<any> => {
   const product = await prisma.product.createMany({
     data: productDetails
   });
   return product;
 };
 
-export const fetchProductDetailRepo = async (filter: Partial<Product>): Promise<Product | undefined> => {
+export const fetchProductDetailRepo = async (filter: any): Promise<Product | undefined> => {
   const product = await prisma.product.findFirst({
     where: { ...filter, ...globalFilter }
   });
   return product;
 };
 
-export const findProductRepo = async (filter: Partial<Product>): Promise<Product | undefined> => {
+export const findProductRepo = async (filter: any): Promise<Product | undefined> => {
   const product = await prisma.product.findFirst({
     include: {
       store: true,
@@ -107,7 +91,7 @@ export const findProductWithVariantsRepo = async (filter: { id: string }): Promi
   return product;
 };
 
-export const fetchProductsWithVariantsRepo = async (filter: Partial<Product>): Promise<Product[]> => {
+export const fetchProductsWithVariantsRepo = async (filter: any): Promise<Product[]> => {
   const product = await prisma.product.findMany({
     include: {
       product_variants: true,
@@ -118,7 +102,7 @@ export const fetchProductsWithVariantsRepo = async (filter: Partial<Product>): P
   return product;
 };
 
-export const fetchProductsRepo = async (filters?: Partial<Product | any>): Promise<Product[]> => {
+export const fetchProductsRepo = async (filters?: any): Promise<Product[]> => {
   const products = await prisma.product.findMany({
     where: { ...filters, ...globalFilter },
     include: {
@@ -165,7 +149,7 @@ export const searchProductByName = async (query: string): Promise<Product[]> => 
   }
 };
 
-export const fetchProductsAnalysis = async (filter?: Partial<Product | any>): Promise<any[]> => {
+export const fetchProductsAnalysis = async (filter?: any): Promise<any[]> => {
   const products = await prisma.product.findMany({
     where: { ...filter, ...globalFilter }
   });
@@ -211,7 +195,7 @@ export const fetchProductsAnalysis = async (filter?: Partial<Product | any>): Pr
   ];
 };
 
-export const updateProductRepo = async (filter: { id: string }, data: Partial<Product>): Promise<Product> => {
+export const updateProductRepo = async (filter: { id: string }, data: any): Promise<Product> => {
   const product = await prisma.product.update({
     data: {
       ...data
@@ -228,7 +212,7 @@ export const deleteProductRepo = async (filter: { id: string }): Promise<Product
   return deletedProduct;
 };
 
-export const softDeleteProductRepo = async (filter: Partial<Product>): Promise<any> => {
+export const softDeleteProductRepo = async (filter: any): Promise<any> => {
   const deletedProduct = await prisma.product.updateMany({
     data: {isDeleted: true},
     where: { ...filter, ...globalFilter }

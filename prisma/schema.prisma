@@ -70,6 +70,11 @@ model User {
   Comments              Comments[]            @relation(name: "CommentsToUser")
   commentReplies        CommentReplies[]      @relation(name: "CommentRepliesToUser")
   isDeleted             Boolean               @default(false)
+  
+  // User roles and permissions
+  user_role             UserRole?             @relation(name: "UserToUserRole", fields: [user_role_id], references: [id])
+  user_role_id          String?
+  permissions           UserPermission[]      @relation(name: "UserToUserPermission")
 
   @@map("users")
 }
@@ -199,6 +204,37 @@ model Role {
   role       String      @unique
 
   @@map("role")
+}
+
+model UserRole {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  level       Int      @default(0) // 0 = lowest, 100 = highest
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  
+  // Relations
+  users       User[]   @relation(name: "UserToUserRole")
+  permissions UserPermission[] @relation(name: "UserRoleToUserPermission")
+
+  @@map("user_roles")
+}
+
+model UserPermission {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  resource    String   // e.g., "products", "orders", "users"
+  action      String   // e.g., "create", "read", "update", "delete"
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  
+  // Relations
+  user_roles  UserRole[] @relation(name: "UserRoleToUserPermission")
+  users       User[]     @relation(name: "UserToUserPermission")
+
+  @@map("user_permissions")
 }
 
 model Category {

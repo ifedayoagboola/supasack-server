@@ -1,8 +1,10 @@
 import { User } from '@src/interfaces/user';
-import { createBulkRepo, createUserRepo, fetchUserDetailsRepo, findAuthUser, findUserRepo, updateUserRepo } from '../../repositories/auth.repository';
+import { createBulkRepo, createUserRepo, fetchUserDetailsRepo, findAuthUser, findUserRepo, updateUserRepo, assignUserRoleRepo } from '../../repositories/auth.repository';
 import bcrypt from 'bcrypt';
 import { BadRequestError } from '@src/common/errors';
 import JWT from '@src/utilities/JWT.utility';
+import { USER_ROLES } from '@src/constants/roles.contant';
+import prisma from '@src/apis/middleware/db';
 
 import jwksClient from 'jwks-rsa';
 import jwt from 'jsonwebtoken';
@@ -44,7 +46,18 @@ export const createUserSrv = async (user: Partial<User>) => {
   if (existingUser) {
     throw new BadRequestError(`User ${user.email} already exists`);
   }
+  
   const createdUser = await createUserRepo(user);
+  
+  // Assign default CUSTOMER role to new users
+  const customerRole = await prisma.userRole.findUnique({
+    where: { name: USER_ROLES.CUSTOMER }
+  });
+  
+  if (customerRole) {
+    await assignUserRoleRepo(createdUser.id, customerRole.id);
+  }
+  
   const accessToken = JWT.encode({ id: createdUser.id });
   delete createdUser.password;
   return {

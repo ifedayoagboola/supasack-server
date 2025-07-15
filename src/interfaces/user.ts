@@ -21,4 +21,29 @@ export interface User {
   isDeleted?: boolean;
   created_at: Date;
   updated_at: Date;
+  
+  // User roles and permissions
+  user_role_id?: string;
+  user_role?: UserRole;
+  permissions?: UserPermission[];
+}
+
+export interface UserRole {
+  id: string;
+  name: string;
+  description?: string;
+  level: number;
+  created_at: Date;
+  updated_at: Date;
+  permissions?: UserPermission[];
+}
+
+export interface UserPermission {
+  id: string;
+  name: string;
+  description?: string;
+  resource: string;
+  action: string;
+  created_at: Date;
+  updated_at: Date;
 }
