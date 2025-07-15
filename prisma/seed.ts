@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting database seeding...');
+  console.log('🌱 Starting Supasack database seeding...');
 
   // Create store roles
   const storeRoles = ['OWNER', 'ATTENDANT', 'MANAGER'];
@@ -27,35 +27,67 @@ async function main() {
     }
   }
 
-  // Create default categories and subcategories
+  // Create African and Caribbean food categories
   const categoriesData = [
     {
-      name: 'Smartphones',
-      subcategories: ['iPhone', 'Samsung Galaxy', 'Google Pixel', 'Android Smartphones', 'Smartphone accessories']
+      name: 'Grains & Cereals',
+      subcategories: ['Rice', 'Yam', 'Cassava', 'Plantain', 'Corn', 'Millet', 'Sorghum', 'Fonio', 'Teff']
     },
     {
-      name: 'Laptops',
-      subcategories: ['MacBook', 'Windows laptops', 'Peripherals and accessories']
+      name: 'Fresh Produce',
+      subcategories: ['Vegetables', 'Fruits', 'Herbs', 'Spices', 'Root Vegetables', 'Leafy Greens']
     },
     {
-      name: 'Tablets',
-      subcategories: ['iPad', 'Samsung Galaxy Tab', 'Android Tablet', 'Tablet accessories']
+      name: 'Meat & Seafood',
+      subcategories: ['Beef', 'Goat', 'Lamb', 'Chicken', 'Fish', 'Shrimp', 'Crab', 'Snails', 'Offal']
     },
     {
-      name: 'Game consoles',
-      subcategories: ['PlayStation', 'Nintendo', 'Xbox', 'Video games', 'Console accessories']
+      name: 'Dairy & Eggs',
+      subcategories: ['Milk', 'Cheese', 'Yogurt', 'Eggs', 'Butter', 'Cream']
     },
     {
-      name: 'Smartwatches',
-      subcategories: ['Apple Watch', 'Samsung Galaxy Watch', 'Apple Watch accessories']
+      name: 'Legumes & Beans',
+      subcategories: ['Black Beans', 'Kidney Beans', 'Chickpeas', 'Lentils', 'Cowpeas', 'Bambara Nuts']
     },
     {
-      name: 'Audio',
-      subcategories: ['AirPod', 'Earphones', 'Headphones', 'Speakers']
+      name: 'Spices & Seasonings',
+      subcategories: ['Pepper', 'Curry', 'Thyme', 'Bay Leaves', 'Nutmeg', 'Cinnamon', 'Ginger', 'Garlic', 'Onions']
     },
     {
-      name: 'More',
-      subcategories: ['Desktop computers', 'Retro tech', 'Cameras', 'Mobility', 'TVs and home cinema']
+      name: 'Oils & Fats',
+      subcategories: ['Palm Oil', 'Groundnut Oil', 'Coconut Oil', 'Shea Butter', 'Ghee']
+    },
+    {
+      name: 'Beverages',
+      subcategories: ['Tea', 'Coffee', 'Juices', 'Traditional Drinks', 'Wine', 'Beer']
+    },
+    {
+      name: 'Snacks & Sweets',
+      subcategories: ['Chips', 'Nuts', 'Dried Fruits', 'Traditional Snacks', 'Candies', 'Chocolates']
+    },
+    {
+      name: 'Frozen Foods',
+      subcategories: ['Frozen Vegetables', 'Frozen Meat', 'Frozen Fish', 'Ready Meals']
+    },
+    {
+      name: 'Canned & Preserved',
+      subcategories: ['Canned Tomatoes', 'Canned Beans', 'Pickled Vegetables', 'Jams', 'Preserves']
+    },
+    {
+      name: 'Bakery & Pastries',
+      subcategories: ['Bread', 'Cakes', 'Pastries', 'Cookies', 'Traditional Breads']
+    },
+    {
+      name: 'Condiments & Sauces',
+      subcategories: ['Hot Sauce', 'Ketchup', 'Mustard', 'Traditional Sauces', 'Dips']
+    },
+    {
+      name: 'Health & Wellness',
+      subcategories: ['Herbal Teas', 'Supplements', 'Organic Foods', 'Gluten-Free', 'Vegan']
+    },
+    {
+      name: 'Household & Cleaning',
+      subcategories: ['Cleaning Supplies', 'Personal Care', 'Kitchen Essentials', 'Storage']
     }
   ];
 
@@ -97,7 +129,8 @@ async function main() {
     }
   }
 
-  console.log('🎉 Database seeding completed!');
+  console.log('🎉 Supasack database seeding completed!');
+  console.log('🍽️  Ready to serve African & Caribbean food marketplace!');
 }
 
 main()

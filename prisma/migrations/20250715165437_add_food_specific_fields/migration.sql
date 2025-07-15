@@ -1,0 +1,15 @@
+-- AlterTable
+ALTER TABLE "products" ADD COLUMN     "allergens" TEXT[],
+ADD COLUMN     "brand" TEXT,
+ADD COLUMN     "expiry_date" TIMESTAMP(3),
+ADD COLUMN     "is_gluten_free" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "is_halal" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "is_kosher" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "is_organic" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "is_vegan" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "nutritional_info" JSONB,
+ADD COLUMN     "origin_country" TEXT,
+ADD COLUMN     "preparation_instructions" TEXT,
+ADD COLUMN     "serving_size" TEXT,
+ADD COLUMN     "storage_instructions" TEXT,
+ADD COLUMN     "weight_unit" TEXT DEFAULT 'kg';

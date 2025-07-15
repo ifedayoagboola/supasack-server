@@ -16,6 +16,20 @@ export interface Product {
   created_at: Date;
   updated_at: Date;
   isDeleted?: boolean;
+  is_organic?: boolean;
+  is_gluten_free?: boolean;
+  is_vegan?: boolean;
+  is_halal?: boolean;
+  is_kosher?: boolean;
+  allergens?: string[];
+  nutritional_info?: any;
+  origin_country?: string;
+  storage_instructions?: string;
+  preparation_instructions?: string;
+  serving_size?: string;
+  weight_unit?: string;
+  brand?: string;
+  expiry_date?: Date;
 }
 
 export interface ProductWithVariants extends Product {

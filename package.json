@@ -1,7 +1,7 @@
 {
-  "name": "ecommerce_service",
-  "version": "2.0.3",
-  "description": "Ecommerce Backend",
+  "name": "supasack-server",
+  "version": "1.0.0",
+  "description": "Supasack - African & Caribbean Food Marketplace Backend",
   "main": "server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -18,17 +18,21 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Bazara-Development-Team/baz-backend-v2.git"
+    "url": "git+https://github.com/ifedayoagboola/supasack-server.git"
   },
   "keywords": [
-    "backend"
+    "marketplace",
+    "african-food",
+    "caribbean-food",
+    "multi-vendor",
+    "delivery"
   ],
-  "author": "Lawal Samuel Olamide",
+  "author": "Supasack Team",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Bazara-Development-Team/baz-backend-v2/issues"
+    "url": "https://github.com/ifedayoagboola/supasack-server/issues"
   },
-  "homepage": "https://github.com/Bazara-Development-Team/baz-backend-v2#readme",
+  "homepage": "https://github.com/ifedayoagboola/supasack-server#readme",
   "dependencies": {
     "@joi/date": "^2.1.0",
     "@types/nodemailer": "^6.4.17",

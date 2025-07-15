@@ -7,7 +7,21 @@ export const createProductSchema = celebrate(
       description: Joi.string().required().trim(),
       category_id: Joi.string().required().trim(),
       store_id: Joi.string().required().trim(),
-      estimated_delivery_duration: Joi.number().required()
+      estimated_delivery_duration: Joi.number().required(),
+      is_organic: Joi.boolean().optional(),
+      is_gluten_free: Joi.boolean().optional(),
+      is_vegan: Joi.boolean().optional(),
+      is_halal: Joi.boolean().optional(),
+      is_kosher: Joi.boolean().optional(),
+      allergens: Joi.array().items(Joi.string()).optional(),
+      nutritional_info: Joi.object().optional(),
+      origin_country: Joi.string().optional(),
+      storage_instructions: Joi.string().optional(),
+      preparation_instructions: Joi.string().optional(),
+      serving_size: Joi.string().optional(),
+      weight_unit: Joi.string().optional(),
+      brand: Joi.string().optional(),
+      expiry_date: Joi.date().optional()
     })
   },
   {
@@ -21,7 +35,21 @@ export const updateProductSchema = celebrate(
       name: Joi.string().trim(),
       description: Joi.string().trim(),
       category_id: Joi.string().trim(),
-      estimated_delivery_duration: Joi.number()
+      estimated_delivery_duration: Joi.number(),
+      is_organic: Joi.boolean().optional(),
+      is_gluten_free: Joi.boolean().optional(),
+      is_vegan: Joi.boolean().optional(),
+      is_halal: Joi.boolean().optional(),
+      is_kosher: Joi.boolean().optional(),
+      allergens: Joi.array().items(Joi.string()).optional(),
+      nutritional_info: Joi.object().optional(),
+      origin_country: Joi.string().optional(),
+      storage_instructions: Joi.string().optional(),
+      preparation_instructions: Joi.string().optional(),
+      serving_size: Joi.string().optional(),
+      weight_unit: Joi.string().optional(),
+      brand: Joi.string().optional(),
+      expiry_date: Joi.date().optional()
     }),
     [Segments.QUERY]: Joi.object().keys({
       product_id: Joi.string().required().trim()
