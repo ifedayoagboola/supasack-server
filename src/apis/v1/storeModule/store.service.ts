@@ -2,7 +2,7 @@ import { fetchAddressesRepo, findAddressRepo } from '@src/apis/repositories/addr
 import { STATUS } from '@src/constants/store.constant';
 import { BadRequestError, ConflictError } from '@src/common/errors';
 import { IStatus } from '@src/interfaces/generals';
-import { Store, StorePayload } from '@src/interfaces/store';
+import { AdminStorePayload, Store, StorePayload } from '@src/interfaces/store';
 import slug from 'slug';
 import {
   activateOrDeactivateStoreRepo,
@@ -15,6 +15,8 @@ import {
   findStoreWithWalletRepo,
   updateStoreRepo
 } from '../../repositories/store.repository';
+import { createMerchantSrv } from '../authModule/auth.service';
+import { User } from '@src/interfaces';
 
 export const createStoreSrv = async (store: StorePayload) => {
   // Check if brand name already exists
@@ -30,6 +32,27 @@ export const createStoreSrv = async (store: StorePayload) => {
   });
 
   return createStore;
+};
+
+export const createStoreServAdmin = async (store: AdminStorePayload) => {
+  //create a merchant
+  const { merchantDetails, storeDetails } = store;
+
+  const merchant = (await createMerchantSrv(merchantDetails, true)) as Partial<User>;
+
+  const existingStore = await findStoreRepo({ brand_name: storeDetails.brand_name });
+  if (existingStore) {
+    throw new ConflictError('A store with this brand name already exists. Please choose a different name.');
+  }
+  const createdStore = await createStoreRepo({
+    ...storeDetails,
+    user_id: merchant.id,
+    email: storeDetails.email ?? merchantDetails.email,
+    slug: slug(storeDetails.brand_name + ' ' + merchant.id),
+    status: STATUS['IN-PROGRESS']
+  });
+
+  return createdStore;
 };
 
 export const createStoreSpecialSrv = async (store: StorePayload) => {
@@ -53,7 +76,7 @@ export const updateStoreSrv = async (filter: Partial<Store>, data: Partial<Store
   return updatedStore;
 };
 
-export const findStoreSrv = async (data: Partial<Store>): Promise<Store | undefined> => {
+export const findStoreSrv = async (data: Partial<Store>): Promise<Partial<Store> | undefined> => {
   const store = await findStoreRepo(data);
   if (!store) {
     throw new BadRequestError('Record not found');
@@ -103,13 +126,16 @@ export const fetchStoresSrv = async (filters?: Partial<Store>): Promise<Store[] 
   return stores;
 };
 
-export const fetchActiveStoresSrv = async (filters?: any): Promise<Store[] | Store> => {
+export const fetchActiveStoresSrv = async (filters?: any): Promise<Partial<Store>[] | Partial<Store>> => {
   filters = {
     deleted: null,
     status: STATUS['ACTIVE'],
     ...filters
   };
-  let stores = await fetchStoresRepo(filters);
+
+  let stores = await fetchStoresRepo();
+  console.log(stores, 'stores');
+
   const store_ids = stores.map((store) => store.id);
   let addressBook = await fetchAddressesRepo({ reference: { in: store_ids } });
 
@@ -117,6 +143,7 @@ export const fetchActiveStoresSrv = async (filters?: any): Promise<Store[] | Sto
     const { city, state, street } = addressBook.find((address) => address.reference === store.id);
     return {
       ...store,
+      email: store.email ?? store.merchant.email,
       city,
       state,
       street

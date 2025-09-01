@@ -14,9 +14,10 @@ export const createAddressBookSchema = celebrate(
         'string.empty': `{{#label}} is not allowed to be empty`
       }),
       phone_number: Joi.string().required().trim(),
-      state: Joi.string().required().trim(),
-      street: Joi.string().required().trim(),
-      city: Joi.string().required().trim(),
+      address: Joi.string().required().trim(),
+      state: Joi.string().trim(),
+      street: Joi.string().trim(),
+      city: Joi.string().trim(),
       alternative_phone_number: Joi.string().optional().trim(),
       additional_information: Joi.string().optional().trim()
     })
@@ -40,6 +41,7 @@ export const updateAddressBookSchema = celebrate(
         'string.empty': `{{#label}} is not allowed to be empty`
       }),
       phone_number: Joi.string().trim(),
+      address: Joi.string().trim(),
       state: Joi.string().trim(),
       street: Joi.string().trim(),
       city: Joi.string().trim(),

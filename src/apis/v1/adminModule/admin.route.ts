@@ -6,7 +6,7 @@ import AdminController from './admin.controller';
 const adminRouter = Router();
 
 // All admin routes require authentication
-adminRouter.use(authenticate());
+//adminRouter.use(authenticate());
 
 // User management routes (Super Admin only)
 adminRouter.get('/users', requireSuperAdmin, AdminController.getAllUsers());

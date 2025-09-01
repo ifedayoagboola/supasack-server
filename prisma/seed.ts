@@ -212,32 +212,33 @@ async function main() {
     try {
       // Check if category already exists
       const existingCategory = await prisma.category.findFirst({
-        where: { category: categoryData.name }
+        where: { name: categoryData.name }
       });
 
       if (!existingCategory) {
         const category = await prisma.category.create({
           data: {
-            category: categoryData.name,
-            img_url: null // You can add default images later
+            name: categoryData.name,
+            code: categoryData.name+'OO1'
+          // You can add default images later
           }
         });
         console.log(`✅ Created category: ${categoryData.name} (ID: ${category.id})`);
 
         // Create subcategories as separate categories
-        for (const subcategoryName of categoryData.subcategories) {
-          try {
-            const subcategory = await prisma.category.create({
-              data: {
-                category: subcategoryName,
-                img_url: null
-              }
-            });
-            console.log(`  ✅ Created subcategory: ${subcategoryName} (ID: ${subcategory.id})`);
-          } catch (error) {
-            console.error(`  ❌ Error creating subcategory ${subcategoryName}:`, error);
-          }
-        }
+        // for (const subcategoryName of categoryData.subcategories) {
+        //   try {
+        //     const subcategory = await prisma.category.create({
+        //       data: {
+        //         name: subcategoryName,
+        //         code: subcategoryName
+        //       }
+        //     });
+        //     console.log(`  ✅ Created subcategory: ${subcategoryName} (ID: ${subcategory.id})`);
+        //   } catch (error) {
+        //     console.error(`  ❌ Error creating subcategory ${subcategoryName}:`, error);
+        //   }
+        // }
       } else {
         console.log(`⏭️  Category already exists: ${categoryData.name} (ID: ${existingCategory.id})`);
       }

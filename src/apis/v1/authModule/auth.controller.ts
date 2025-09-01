@@ -17,7 +17,6 @@ import {
   updateUserDetailsSrv
 } from './auth.service';
 
-
 const AuthController = {
   register: (): RequestHandler => async (req, res, next) => {
     try {
@@ -39,11 +38,13 @@ const AuthController = {
   },
   authenticateUser: (): RequestHandler => async (req, res, next) => {
     try {
+      console.log(req.body, 'error');
       const { email, password } = req.body;
 
       const authenticatedUser = await authenticateUserSrv({ email, password });
       respond(res, authenticatedUser, StatusCodes.OK);
     } catch (error) {
+      console.log(error, 'here');
       next(error);
     }
   },
@@ -123,9 +124,24 @@ const AuthController = {
   },
 
   getUserDetails: (): RequestHandler => async (req, res, next) => {
-    const { id } = res.locals.user;
+    const { id, email, active, first_name, last_name, mobile, user_role } = res.locals.user;
 
     const userDetails = await fetchUserDetailsSrv({ id });
+    return respond(res, userDetails, StatusCodes.OK);
+  },
+
+  getMyDetails: (): RequestHandler => async (req, res, next) => {
+    const { id, email, active, first_name, last_name, mobile, user_role } = res.locals.user;
+
+    const userDetails = {
+      id,
+      email,
+      active,
+      first_name,
+      last_name,
+      mobile,
+      role: user_role.name
+    };
     return respond(res, userDetails, StatusCodes.OK);
   },
 

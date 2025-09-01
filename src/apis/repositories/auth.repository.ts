@@ -3,25 +3,26 @@ import prisma from '@src/apis/middleware/db';
 import { filter } from 'compression';
 
 export const createUserRepo = async (userData: any): Promise<User> => {
-  const { first_name, last_name, email, password } = userData;
+  const { first_name, last_name, email, password, mobile } = userData;
   let createdUser = await prisma.user.create({
     data: {
       first_name,
       last_name,
       email,
+      mobile,
       password,
       ...userData
     }
   });
-  return createdUser as User;
+  console.log(createdUser, 'createdUser');
+  return createdUser as User ;
 };
 
 export const createBulkRepo = async (userData: any): Promise<User[]> => {
-  
   await prisma.user.createMany({
     data: userData
   });
-  return
+  return;
 };
 
 export const findAuthUser = async (filters: any): Promise<User | undefined> => {
@@ -73,6 +74,7 @@ export const fetchUserDetailsRepo = async (filters: any): Promise<User | undefin
 };
 
 export const updateUserRepo = async (filters: any, data: any): Promise<User | undefined> => {
+  console.log(data, "data")
   const updatedUser = await prisma.user.update({
     data: {
       ...data
@@ -134,9 +136,9 @@ export const getUserPermissionsRepo = async (userId: string) => {
       permissions: true
     }
   });
-  
+
   const rolePermissions = user?.user_role?.permissions || [];
   const userPermissions = user?.permissions || [];
-  
+
   return [...rolePermissions, ...userPermissions];
 };

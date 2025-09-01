@@ -7,6 +7,7 @@ import {
   createProductVariantSpecSchema,
   deleteProductVariantSchema,
   deleteProductVariantSpecSchema,
+  fetchProductByStoreSchema,
   fetchProductSchema,
   fetchProductVariantSchema,
   fetchProductVariantSpecSchema,
@@ -22,7 +23,7 @@ import ProductVariantController from './productVariant.ts/productVartiant.contro
 
 const productRouter = Router();
 
-productRouter.post('/create', authenticate(), createProductSchema, ProductController.create());
+productRouter.post('/', authenticate(), createProductSchema, ProductController.create());
 productRouter.post('/createBulk', ProductController.createBulk());
 productRouter.get('/seller', authenticate(), fetchProductSchema, ProductController.fetchProducts());
 productRouter.post('/delivery_fee', ProductController.fetchProductDeliveryFee());
@@ -46,6 +47,7 @@ productRouter.post(
 productRouter.post('/update', authenticate(), updateProductSchema, ProductController.updateProductDetails());
 productRouter.delete('/delete', authenticate(), ProductController.deleteProduct());
 productRouter.get('/', fetchProductSchema, ProductController.fetchProducts());
+productRouter.get('/store/:store_id', fetchProductByStoreSchema, ProductController.getAllProductsByStore());
 productRouter.get('/all/admin', fetchProductSchema, ProductController.fetchAllProductsAdmin());
 
 productRouter.post('/variant/create', authenticate(), createProductVariantSchema, ProductVariantController.create());

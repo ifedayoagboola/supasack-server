@@ -44,6 +44,7 @@ model User {
   last_name             String
   mobile                String?
   is_mobile_verified    Boolean?
+  address               String?
   sex                   String?
   dob                   String?
   profile_cover_img     String?
@@ -72,9 +73,9 @@ model User {
   isDeleted             Boolean               @default(false)
 
   // User roles and permissions
-  user_role             UserRole?             @relation(name: "UserToUserRole", fields: [user_role_id], references: [id])
-  user_role_id          String?
-  permissions           UserPermission[]      @relation(name: "UserToUserPermission")
+  user_role    UserRole?        @relation(name: "UserToUserRole", fields: [user_role_id], references: [id])
+  user_role_id String?
+  permissions  UserPermission[] @relation(name: "UserToUserPermission")
 
   @@map("users")
 }
@@ -88,11 +89,15 @@ model Store {
   slug             String           @unique
   img_url          String?
   logo             String?
+  address          String
+  postcode         String
+  phone_number     String
+  email            String
   status           String
   deleted          DateTime?
   user_id          String
   product          Product[]        @relation(name: "ProductToStore")
-  user             User             @relation(name: "StoreToUser", fields: [user_id], references: [id])
+  merchant         User             @relation(name: "StoreToUser", fields: [user_id], references: [id], onDelete: Cascade)
   created_at       DateTime         @default(now())
   updated_at       DateTime         @updatedAt
   store_role       StoreRole[]      @relation(name: "StoreToStoreRole")
@@ -102,39 +107,46 @@ model Store {
 }
 
 model Product {
-  id                          String           @id @default(cuid())
-  views                       Int              @default(0)
-  rating                      Float            @default(0.0)
-  name                        String
-  description                 String
-  slug                        String
-  category_id                 String
-  user_id                     String
-  user                        User             @relation(name: "ProductToUser", fields: [user_id], references: [id])
-  status                      String
-  store_id                    String
-  estimated_delivery_duration Int              @default(3)
-  store                       Store            @relation(name: "ProductToStore", fields: [store_id], references: [id])
-  product_variants            ProductVariant[] @relation(name: "ProductVariantToProduct")
-  isDeleted                   Boolean          @default(false)
-  created_at                  DateTime         @default(now())
-  updated_at                  DateTime         @updatedAt
-  
+  id               String           @id @default(cuid())
+  views            Int              @default(0)
+  rating           Float?           @default(0.0)
+  name             String
+  description      String
+  slug             String
+  category_id      String
+  subcategory_id   String
+  quantity         Int              @default(1)
+  quantity_alert   Int?
+  user_id          String?
+  user             User?            @relation(name: "ProductToUser", fields: [user_id], references: [id])
+  status           String?
+  store_id         String
+  store            Store            @relation(name: "ProductToStore", fields: [store_id], references: [id])
+  product_variants ProductVariant[] @relation(name: "ProductVariantToProduct")
+  price            Float
+  discount         Float            @default(0.0)
+  isDeleted        Boolean          @default(false)
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+  images           String[]
+
   // Food-specific fields
-  expiry_date                 DateTime?
-  is_organic                  Boolean          @default(false)
-  is_gluten_free              Boolean          @default(false)
-  is_vegan                    Boolean          @default(false)
-  is_halal                    Boolean          @default(false)
-  is_kosher                   Boolean          @default(false)
-  allergens                   String[]
-  nutritional_info            Json?
-  origin_country              String?
-  storage_instructions        String?
-  preparation_instructions    String?
-  serving_size                String?
-  weight_unit                 String?          @default("kg")
-  brand                       String?
+  expiry_date              DateTime?
+  manufacturer             String?
+  manufactured_date        DateTime?
+  is_organic               Boolean   @default(false)
+  is_gluten_free           Boolean   @default(false)
+  is_vegan                 Boolean   @default(false)
+  is_halal                 Boolean   @default(false)
+  is_kosher                Boolean   @default(false)
+  allergens                String[]
+  nutritional_info         Json?
+  origin_country           String?
+  storage_instructions     String?
+  preparation_instructions String?
+  serving_size             String?
+  weight_unit              String?   @default("kg")
+  brand                    String?
 
   @@map("products")
 }
@@ -213,9 +225,9 @@ model UserRole {
   level       Int      @default(0) // 0 = lowest, 100 = highest
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
-  
+
   // Relations
-  users       User[]   @relation(name: "UserToUserRole")
+  users       User[]           @relation(name: "UserToUserRole")
   permissions UserPermission[] @relation(name: "UserRoleToUserPermission")
 
   @@map("user_roles")
@@ -225,26 +237,40 @@ model UserPermission {
   id          String   @id @default(cuid())
   name        String   @unique
   description String?
-  resource    String   // e.g., "products", "orders", "users"
-  action      String   // e.g., "create", "read", "update", "delete"
+  resource    String // e.g., "products", "orders", "users"
+  action      String // e.g., "create", "read", "update", "delete"
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
-  
+
   // Relations
-  user_roles  UserRole[] @relation(name: "UserRoleToUserPermission")
-  users       User[]     @relation(name: "UserToUserPermission")
+  user_roles UserRole[] @relation(name: "UserRoleToUserPermission")
+  users      User[]     @relation(name: "UserToUserPermission")
 
   @@map("user_permissions")
 }
 
 model Category {
-  id         String   @id @default(cuid())
-  category   String   @unique
-  img_url    String?
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id          String        @id @default(cuid())
+  name        String        @unique
+  code        String        @unique
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @updatedAt
+  subcategory SubCategory[] @relation(name: "SubCategoryToCategory")
 
   @@map("categories")
+}
+
+model SubCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  img_url     String?
+  category_id String
+  category    Category @relation(name: "SubCategoryToCategory", fields: [category_id], references: [id], onDelete: Cascade)
+  description String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@map("subcategories")
 }
 
 model PayoutAccount {
@@ -341,6 +367,7 @@ model AddressBook {
   user_id                  String
   user                     User     @relation(name: "AddressBookToUser", fields: [user_id], references: [id])
   email                    String?
+  address                  String
   state                    String
   city                     String
   street                   String

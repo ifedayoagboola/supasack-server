@@ -1,5 +1,13 @@
 import { User } from '@src/interfaces/user';
-import { createBulkRepo, createUserRepo, fetchUserDetailsRepo, findAuthUser, findUserRepo, updateUserRepo, assignUserRoleRepo } from '../../repositories/auth.repository';
+import {
+  createBulkRepo,
+  createUserRepo,
+  fetchUserDetailsRepo,
+  findAuthUser,
+  findUserRepo,
+  updateUserRepo,
+  assignUserRoleRepo
+} from '../../repositories/auth.repository';
 import bcrypt from 'bcrypt';
 import { BadRequestError } from '@src/common/errors';
 import JWT from '@src/utilities/JWT.utility';
@@ -43,31 +51,78 @@ const verifyJWT = (json: any, publicKey: any) => {
 
 export const createUserSrv = async (user: Partial<User>) => {
   const existingUser = await findUserRepo({ email: user.email });
+//  await prisma.user.delete({
+//   where: { id: existingUser.id },
+// });
   if (existingUser) {
     throw new BadRequestError(`User ${user.email} already exists`);
   }
-  
+
   // User is active by default (database default)
-  const userData = { 
-    ...user, 
-    is_email_verified: false // Will be verified via email flow
+  const userData = {
+    ...user,
+    is_email_verified: true // Will be verified via email flow
   };
   const createdUser = await createUserRepo(userData);
-  
+
   // Assign default CUSTOMER role to new users
   const customerRole = await prisma.userRole.findUnique({
     where: { name: USER_ROLES.CUSTOMER }
   });
-  
+
   if (customerRole) {
     await assignUserRoleRepo(createdUser.id, customerRole.id);
   }
-  
+
   const accessToken = JWT.encode({ id: createdUser.id });
   delete createdUser.password;
   return {
     accessToken,
     ...createdUser
+  };
+};
+
+export const createMerchantSrv = async (user: Partial<User>, isAdmin: boolean) => {
+  const existingUser = await findUserRepo({ email: user.email });
+  //console.log(existingUser, "exstingUser")
+  if (existingUser) {
+    return existingUser;
+    throw new BadRequestError(`User ${user.email} already exists`);
+  }
+
+  // Temporary merchnat password
+  const tempPassword = user.first_name + '@' + user.last_name + '!';
+
+  // User is active by default (database default)
+  const userData = {
+    ...user,
+    password: tempPassword,
+    is_email_verified: false // Will be verified via email flow
+  };
+
+  const createdUser = await createUserRepo(userData);
+  let updatedUser: User;
+
+  // Assign default role to new users
+  const merchantRole = await prisma.userRole.findUnique({
+    where: { name: USER_ROLES.MERCHANT }
+  });
+
+  if (merchantRole) {
+    updatedUser = await assignUserRoleRepo(createdUser.id, merchantRole.id);
+  }
+  const { id, first_name, last_name, email, mobile, user_role, user_role_id, permissions } = updatedUser;
+  const userDetails = { id, first_name, last_name, email, mobile, user_role, user_role_id, permissions };
+
+  if (isAdmin) {
+    return userDetails;
+  }
+
+  const accessToken = JWT.encode({ id });
+
+  return {
+    accessToken,
+    userDetails
   };
 };
 
@@ -77,12 +132,10 @@ export const createBulkUserSrv = async (user: Partial<User[]>) => {
   //   throw new BadRequestError(`User ${user.email} already exists`);
   // }
   const createdUser = await createBulkRepo(user);
-  
 
   return {
     createdUser
   };
-
 };
 
 export const fetchUserDetailsSrv = async (filters: Partial<User>) => {
@@ -116,58 +169,62 @@ export const requestPasswordResetSrv = async (payload: { email: string; redirect
   return passwordResetRequest;
 };
 
-export const resetPasswordSrv = async (payload:any ) => {
-  const { token, password} = payload;
+export const resetPasswordSrv = async (payload: any) => {
+  const { token, password } = payload;
   const decodedToken = JWT.decode(token);
 
-  const existingUser = await fetchUserDetailsRepo({email: decodedToken.email})
+  const existingUser = await fetchUserDetailsRepo({ email: decodedToken.email });
 
   if (!existingUser) {
-    throw new BadRequestError("Invalid token provided");
+    throw new BadRequestError('Invalid token provided');
   }
 
-  const updatedUser = await updateUserRepo({id: existingUser.id}, {password})
-  return updatedUser
-}
-
+  const updatedUser = await updateUserRepo({ id: existingUser.id }, { password });
+  return updatedUser;
+};
 
 export const authenticateUserSrv = async (filters: Partial<User>) => {
-   console.log(filters);
   const user = await findAuthUser({ email: filters.email });
-  
+  console.log(user, 'user');
+
   if (!user || !bcrypt.compareSync(filters.password, user.password) || user.isDeleted) {
     throw new BadRequestError('Invalid credentials');
   }
   const accessToken = JWT.encode({ id: user.id });
-  console.log(JSON.stringify(user), "======= SECRET PASS");
+  console.log(JSON.stringify(user), '======= SECRET PASS');
   delete user.password;
-  return {
+  const userData = {
     accessToken,
-    ...user
+    userInfo: {
+      email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      role: user.user_role.name
+    }
   };
+  return userData;
 };
 
 export const googleAuthUserSrv = async (token: string) => {
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: variables.auth.googleAuthClientId
-    });
+  const ticket = await client.verifyIdToken({
+    idToken: token,
+    audience: variables.auth.googleAuthClientId
+  });
 
-    const payload = ticket.getPayload();
-    const oAuthToken = payload['sub'];
+  const payload = ticket.getPayload();
+  const oAuthToken = payload['sub'];
 
-    const user = await fetchUserDetailsRepo({ oAuth_token: oAuthToken });
+  const user = await fetchUserDetailsRepo({ oAuth_token: oAuthToken });
 
-    if (user) {
-      const accessToken = JWT.encode({ id: user.id });
-      return {
-        accessToken,
-        ...user
-      };
-    } else {
-      throw new BadRequestError(`Error authenticating using google auth`);
-    }
-  
+  if (user) {
+    const accessToken = JWT.encode({ id: user.id });
+    return {
+      accessToken,
+      ...user
+    };
+  } else {
+    throw new BadRequestError(`Error authenticating using google auth`);
+  }
 };
 
 export const registerUserWithGoogleSrv = async (token: string) => {
@@ -179,39 +236,38 @@ export const registerUserWithGoogleSrv = async (token: string) => {
   const payload = ticket.getPayload();
   const oAuthToken = payload['sub'];
 
-  let  existingUser = await findUserRepo({ email: payload.email });
+  let existingUser = await findUserRepo({ email: payload.email });
   if (existingUser) {
-        throw new BadRequestError('User already registered, kindly proceed to login');
-      // const updateExisting = await updateUserRepo({id: existingUser.id}, { oAuth_channel: "GOOGLE", oAuth_token: oAuthToken }) 
-      // const accessToken = JWT.encode({ id: updateExisting.id });
-      // return {
-      //   accessToken,
-      //   ...updateExisting
-      // };
-      } else {
-        const newUserRegPayload = {
-          first_name: payload.given_name,
-          last_name: payload.family_name,
-          oAuth_token: oAuthToken,
-          oAuth_channel: "GOOGLE",
-          password: cuid(),
-          email: payload.email,
-          is_email_verified: payload.email_verified,
-          img_url: payload.picture,
-        }
-      const createdUser = await createUserRepo(newUserRegPayload);
-      const accessToken = JWT.encode({ id: createdUser.id });
-      delete createdUser.password;
-      return {
-        accessToken,
-        ...createdUser
-      };
-      }
+    throw new BadRequestError('User already registered, kindly proceed to login');
+    // const updateExisting = await updateUserRepo({id: existingUser.id}, { oAuth_channel: "GOOGLE", oAuth_token: oAuthToken })
+    // const accessToken = JWT.encode({ id: updateExisting.id });
+    // return {
+    //   accessToken,
+    //   ...updateExisting
+    // };
+  } else {
+    const newUserRegPayload = {
+      first_name: payload.given_name,
+      last_name: payload.family_name,
+      oAuth_token: oAuthToken,
+      oAuth_channel: 'GOOGLE',
+      password: cuid(),
+      email: payload.email,
+      is_email_verified: payload.email_verified,
+      img_url: payload.picture
+    };
+    const createdUser = await createUserRepo(newUserRegPayload);
+    const accessToken = JWT.encode({ id: createdUser.id });
+    delete createdUser.password;
+    return {
+      accessToken,
+      ...createdUser
+    };
+  }
 };
 
-
 export const appleAuthUserSrv = async (identity_token: string, user: string) => {
-  const json:any = jwt.decode(identity_token, { complete: true });
+  const json: any = jwt.decode(identity_token, { complete: true });
   const kid = json?.header?.kid;
 
   const appleKey = await getAppleSigningKey(kid);
@@ -236,7 +292,6 @@ export const appleAuthUserSrv = async (identity_token: string, user: string) => 
     } else {
       throw new BadRequestError(`Error authenticating via apple auth`);
     }
-
   } else {
     throw new BadRequestError(`Invalid signing key`);
   }
@@ -245,7 +300,7 @@ export const appleAuthUserSrv = async (identity_token: string, user: string) => 
 export const registerUserWithAppleSrv = async (data: any) => {
   const { identity_token, user, family_name, given_name } = data;
 
-  const json:any = jwt.decode(identity_token, { complete: true });
+  const json: any = jwt.decode(identity_token, { complete: true });
   const kid = json?.header?.kid;
   const appleKey = await getAppleSigningKey(kid);
   if (!appleKey) {
@@ -258,7 +313,6 @@ export const registerUserWithAppleSrv = async (data: any) => {
   }
 
   if (payload.sub === user && payload.aud === json.payload.aud) {
-  
     let existingUser = await findUserRepo({ email: payload.email });
     if (existingUser) {
       throw new BadRequestError('User already registered, kindly proceed to login');
@@ -276,7 +330,7 @@ export const registerUserWithAppleSrv = async (data: any) => {
         oAuth_channel: 'APPLE',
         password: cuid(),
         email: payload.email,
-        is_email_verified: true,
+        is_email_verified: true
       };
       const createdUser = await createUserRepo(newUserRegPayload);
       const accessToken = JWT.encode({ id: createdUser.id });
@@ -287,12 +341,13 @@ export const registerUserWithAppleSrv = async (data: any) => {
       };
     }
   } else {
-    throw new BadRequestError("Apple authentication failed")
+    throw new BadRequestError('Apple authentication failed');
   }
 };
 
 export const updateUserDetailsSrv = async (filter: Partial<User>, data: Partial<User>): Promise<User> => {
   const existingUser = await findUserRepo({ ...filter });
+  console.log(existingUser, data, filter, 'exuser');
   if (!existingUser) {
     throw new BadRequestError('Record not found');
   }
@@ -306,17 +361,16 @@ export const deleteUserAccountSrv = async (filter: Partial<User>, data: Partial<
   if (!existingUser) {
     throw new BadRequestError('Record not found');
   }
-  const updatedUser = await updateUserRepo(filter, data)
+  const updatedUser = await updateUserRepo(filter, data);
   const stores = await fetchStoresRepo({ user_id: filter.id });
   if (stores && stores.length !== 0) {
     await softDeleteStoreRepo({ user_id: filter.id });
   }
 
-  const products = await fetchProductsRepo({user_id: filter.id})
+  const products = await fetchProductsRepo({ user_id: filter.id });
   if (products && products.length !== 0) {
     await softDeleteProductRepo({ user_id: filter.id });
   }
-
 
   return updatedUser;
 };

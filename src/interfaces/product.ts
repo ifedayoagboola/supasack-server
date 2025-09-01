@@ -2,16 +2,23 @@ import { Prisma } from '@prisma/client';
 
 export interface Product {
   id: string;
-  views: number;
-  rating: number;
+  views?: number;
+  rating?: number;
   name: string;
   description: string;
   category_id: string;
+  subcategory_id: string;
+  quantity: number;
+  quantity_alert: number;
+  discount: number;
+  images?: string[];
+  manufacturer?: string;
+  manufactured_date: Date;
+  price: number,
   slug: string;
-  user_id: string;
+  user_id?: string;
   tags?: string;
-  status: string;
-  estimated_delivery_duration: number;
+  status?: string;
   store_id: string;
   created_at: Date;
   updated_at: Date;
@@ -27,7 +34,7 @@ export interface Product {
   storage_instructions?: string;
   preparation_instructions?: string;
   serving_size?: string;
-  weight_unit?: string;
+  weight_unit: string;
   brand?: string;
   expiry_date?: Date;
 }

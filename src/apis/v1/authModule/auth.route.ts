@@ -20,6 +20,7 @@ authRouter.post('/oAuth/google/register', AuthController.registerUserWithGoogleA
 authRouter.post('/oAuth/apple/register', registerAppleSchema, AuthController.registerUserWithAppleAuth());
 authRouter.post('/updateProfile', authenticate(), updateUserSchema, AuthController.updateUserDetails());
 authRouter.get('/', authenticate(), AuthController.getUserDetails());
+authRouter.get('/me', authenticate(), AuthController.getMyDetails());
 authRouter.post('/oAuth/google', AuthController.googleAuthUser());
 authRouter.post('/oAuth/apple', authAppleSchema, AuthController.appleAuthUser());
 authRouter.post(`/request_password_reset`, requestPasswordResetSchema, AuthController.requestPasswordReset());

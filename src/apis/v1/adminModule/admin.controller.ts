@@ -309,6 +309,7 @@ const AdminController = {
   createSuperAdmin: (): RequestHandler => async (req, res, next) => {
     try {
       const { adminKey, userEmail } = req.body;
+      console.log(adminKey, "etets")
 
       // Verify admin key from environment
       if (adminKey !== process.env.ADMIN_KEY) {

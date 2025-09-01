@@ -12,6 +12,7 @@ import {
   createProductRepo,
   createProductSpecialRepo,
   deleteProductRepo,
+  fetchProductsByStoreRepo,
   fetchProductsRepo,
   fetchProductsWithVariantsRepo,
   findProductRepo,
@@ -24,6 +25,7 @@ import {
 import SendboxIntegration from '@src/integrations/sendbox-logistics';
 import ElasticSearch from '@src/integrations/elastic-search';
 import { logger } from '@src/utilities';
+import { findSubCategoryRepo } from '@src/apis/repositories/subcategories.repository';
 
 const Sendbox = new SendboxIntegration();
 const ElasticSearchService = new ElasticSearch();
@@ -41,11 +43,29 @@ export const createProductSrv = async (product: Partial<Product>): Promise<Produ
 
   return createProduct;
 };
-export const createBulkProductSrv = async (product: Partial<Product>): Promise<Product> => {
 
+export const createProductByAdminSrv = async (product: Partial<Product>) => {
+  const foundCategory = await findCategoryRepo({ id: product.category_id });
+  const subCategory = await findSubCategoryRepo({ id: product.subcategory_id });
+
+  if (!foundCategory) {
+    throw new BadRequestError('Invalid category id provided');
+  }
+
+  if (!subCategory) {
+    throw new BadRequestError('Invalid subcategory id provided');
+  }
+
+  await createProductRepo({
+    ...product,
+    slug: product.slug ?? slug(product.name + ' ' + product.category_id)
+  });
+};
+
+export const createBulkProductSrv = async (product: Partial<Product>): Promise<Product> => {
   const foundStore = await findStoreRepo({ id: product.store_id });
   if (!foundStore) {
-    console.log("store not found")
+    console.log('store not found');
     throw new BadRequestError('Store not found');
   }
   const createProduct = await createProductSpecialRepo(product);
@@ -57,13 +77,13 @@ export const searchProductSrc = async (searchString: string): Promise<Product[]>
   try {
     return await searchProductByName(searchString);
   } catch {
-    console.log("Error searching products: " + searchString)
-    return []
+    console.log('Error searching products: ' + searchString);
+    return [];
   }
-}
+};
 
 export const searchSrv = async (searchString: string, ratings: number): Promise<Product | any> => {
-  let result
+  let result;
   try {
     if (ratings) {
       result = await ElasticSearchService.SearchRecord.SearchRecord({
@@ -108,14 +128,20 @@ export const searchSrv = async (searchString: string, ratings: number): Promise<
 
     return await fetchProductsRepo({ id: { in: product_ids } });
   } catch (error) {
-    return []
+    return [];
   }
-
 };
-
 
 export const findProductSrv = async (data: Partial<Product>): Promise<Product | undefined> => {
   const product = await findProductRepo(data);
+  if (!product) {
+    throw new BadRequestError('Product not found');
+  }
+  return product;
+};
+
+export const findProductsByStoreSrv = async (data: Partial<Product>): Promise<Product[] | undefined> => {
+  const product = await fetchProductsByStoreRepo(data);
   if (!product) {
     throw new BadRequestError('Product not found');
   }
@@ -175,7 +201,7 @@ export const fetchProductsSrv = async (filters?: Partial<Product>): Promise<Prod
     }
     return {
       ...product,
-      category: categories.find((c) => c.id === product.category_id)?.category,
+      category: categories.find((c) => c.id === product.category_id)?.name,
       product_variant_id,
       product_variant_spec_id,
       product_variant_count,
@@ -212,7 +238,7 @@ export const updateProductSrv = async (filter: Partial<Product>, data: Partial<P
 export const incrementProductViewsSrv = async (filter: Partial<Product>): Promise<Product> => {
   const product = await findProductRepo({ ...filter });
   if (!product) {
-    logger.info(`produt not found, views not registered`)
+    logger.info(`produt not found, views not registered`);
   }
 
   const updatedProduct = await increamentProdutViewsRepo({ id: filter.id });

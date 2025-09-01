@@ -25,16 +25,17 @@ const authenticate = () => {
       if (!user) {
         return next(new NotAuthenticatedError('Invalid token'));
       }
-      
+
       if (user.isDeleted) {
         return next(new NotAuthenticatedError('user authentication failed'));
       }
-
+      
       res.locals.user = user;
 
       return next();
     } catch (error) {
       if (error instanceof TokenExpiredError) {
+        console.log( "test error-expired")
         return next(new NotAuthenticatedError('Token has expired'));
       }
 
