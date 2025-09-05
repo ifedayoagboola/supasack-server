@@ -4,16 +4,17 @@ import { Category } from '@src/interfaces/category';
 const prisma = new PrismaClient();
 
 export const createCategoryRepo = async (data: Partial<Category>): Promise<Category> => {
+  const { name, code, img_url } = data;
   const category = await prisma.category.create({
     data: {
-      category: data.category,
-      img_url: data.img_url
+      name,
+      code
     }
   });
   return category;
 };
 
-export const findCategoryRepo = async (filters: { id: string } | { category: string }): Promise<Category | null> => {
+export const findCategoryRepo = async (filters: { id: string } | { name: string }): Promise<Category | null> => {
   const category = await prisma.category.findUnique({
     where: filters
   });
@@ -28,7 +29,7 @@ export const fetchAllCategoriesRepo = async (filters: Partial<Category>): Promis
   return category;
 };
 
-export const updateCategoryRepo = async (filters: { id: string } | { category: string }, data: Partial<Category>): Promise<Category> => {
+export const updateCategoryRepo = async (filters: { id: string } | { name: string }, data: Partial<Category>): Promise<Category> => {
   const product = await prisma.category.update({
     data: {
       ...data
@@ -36,4 +37,16 @@ export const updateCategoryRepo = async (filters: { id: string } | { category: s
     where: filters
   });
   return product;
+};
+
+export const deleteCategoryRepo = async (filters: { id: string }) => {
+   await prisma.category.delete({
+    where: filters
+  });
+
+  await prisma.product.updateMany({
+    data: { isDeleted: true },
+    where: { category_id: filters.id }
+  });
+  
 };

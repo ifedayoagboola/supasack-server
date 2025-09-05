@@ -1,10 +1,12 @@
 import { celebrate, Joi, Segments } from 'celebrate';
 
-export const createCategorySchema = celebrate(
+export const createSubCategorySchema = celebrate(
   {
     [Segments.BODY]: Joi.object().keys({
       name: Joi.string().required().trim(),
-      code: Joi.string().required().trim()
+      category_name: Joi.string().required().trim(),
+      img_url: Joi.string().trim(),
+      description: Joi.string().trim()
     })
   },
   {
@@ -12,25 +14,16 @@ export const createCategorySchema = celebrate(
   }
 );
 
-export const updateCategorySchema = celebrate(
+export const updateSubCategorySchema = celebrate(
   {
     [Segments.PARAMS]: Joi.object({
       id: Joi.string().required().trim()
     }),
     [Segments.BODY]: Joi.object().keys({
       name: Joi.string().required().trim(),
-      code: Joi.string().required().trim()
-    })
-  },
-  {
-    abortEarly: false
-  }
-);
-
-export const getCategorySchema = celebrate(
-  {
-    [Segments.PARAMS]: Joi.object({
-      id: Joi.string().required().trim()
+      category_name: Joi.string().required().trim(),
+      img_url: Joi.string().trim(),
+      description: Joi.string().trim()
     })
   },
   {

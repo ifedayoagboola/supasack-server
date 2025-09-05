@@ -3,6 +3,7 @@ import { respond } from '@src/utilities';
 import { RequestHandler } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { createStoreRoleSrv, deleteStoreRoleSrv, getAllAssignedStoresSrv, getStoreRolesSrv, updateStoreRoleSrv } from './storeRole.service';
+import { deleteUserAccountSrv } from '../authModule/auth.service';
 
 const StoreRoleController = {
   createStoreRole: (): RequestHandler => async (req, res, next) => {
@@ -10,7 +11,7 @@ const StoreRoleController = {
       const { email, store_id, role_id } = req.body;
       const created_by = res.locals.user.id;
       const createdStoreRole = await createStoreRoleSrv({ store_id, role_id, email, created_by });
-      
+
       respond(res, createdStoreRole, StatusCodes.OK);
       return createdStoreRole;
     } catch (error) {
@@ -59,7 +60,5 @@ const StoreRoleController = {
     }
   }
 };
-
-
 
 export default StoreRoleController;

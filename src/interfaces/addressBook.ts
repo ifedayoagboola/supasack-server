@@ -6,6 +6,7 @@ export interface AddressBook {
   reference: string;
   user_id: string;
   email?: string;
+  address:string;
   state: string;
   city: string;
   street: string;

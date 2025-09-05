@@ -1,4 +1,4 @@
-import { searchProductByName, softDeleteProductRepo } from '@src/apis/repositories/product.repository';
+import { fetchProductsByStoreRepo, searchProductByName, softDeleteProductRepo } from '@src/apis/repositories/product.repository';
 import { NOTIFICATION_ACTIONS, NOTIFICATION_TYPE } from '@src/constants/notification.constant';
 import { STATUS } from '@src/constants/store.constant';
 import { IStatus } from '@src/interfaces/generals';
@@ -9,41 +9,84 @@ import { createNotificationSrv } from '../notificationsModule/notification.servi
 import {
   activateOrDeactivateProductSrv,
   createBulkProductSrv,
+  createProductByAdminSrv,
   createProductSrv,
   deleteProductSrv,
   fetchProductsSrv,
+  findProductsByStoreSrv,
   findProductSrv,
   findProductsWithVariantsSrv,
   getProductDeliverySrv,
   searchSrv,
   updateProductSrv
 } from './product.service';
+import { Product } from '@src/interfaces/product';
 
 const ProductController = {
   create: (): RequestHandler => async (req, res, next) => {
     try {
-      const { id } = res.locals.user;
-      const { name, description, slug, status, category_id, store_id, estimated_delivery_duration } = req.body;
-      const delivery_duration = Number(estimated_delivery_duration) + 2;
-      const product = await createProductSrv({
+      const { id, user_role } = res.locals.user;
+
+      const {
         name,
         description,
         slug,
-        status,
         category_id,
-        user_id: id,
-        estimated_delivery_duration: delivery_duration,
-        store_id
-      });
+        store_id,
+        weight_unit,
+        subcategory_id,
+        quantity,
+        quantity_alert,
+        price,
+        discount,
+        images,
+        manufactured_date,
+        manufacturer,
+        expiry_date
+      } = req.body;
+
+      let product: Product;
+      //const delivery_duration = Number(estimated_delivery_duration) + 2;
+      if (user_role.level === 100) {
+        await createProductByAdminSrv({
+          name,
+          description,
+          slug,
+          category_id,
+          user_id: id, //created by
+          store_id,
+          weight_unit,
+          subcategory_id,
+          quantity,
+          quantity_alert,
+          price,
+          discount,
+          images,
+          manufactured_date,
+          manufacturer,
+          expiry_date
+        });
+      } else {
+        product = await createProductSrv({
+          name,
+          description,
+          slug,
+          status,
+          category_id,
+          user_id: id,
+          store_id
+        });
+      }
+
       await createNotificationSrv({
         user_id: id,
-        message: `Your product ${product.name} was created successfully`,
-        reference: product.category_id,
+        message: `Your product ${name} was created successfully`,
+        reference: category_id,
         action: NOTIFICATION_ACTIONS.VIEW,
         type: NOTIFICATION_TYPE.PRODUCT,
         store_id
       });
-      respond(res, product, StatusCodes.OK);
+      respond(res, 'Product was created successfully', StatusCodes.OK);
     } catch (error) {
       next(error);
     }
@@ -51,7 +94,7 @@ const ProductController = {
 
   createBulk: (): RequestHandler => async (req, res, next) => {
     try {
-      console.log(req.body)
+      console.log(req.body);
       const product = await createBulkProductSrv(req.body);
 
       respond(res, product, StatusCodes.OK);
@@ -104,11 +147,20 @@ const ProductController = {
     }
   },
 
-
   getProductBySlug: (): RequestHandler => async (req, res, next) => {
     try {
       const { slug } = req.query as Record<string, string>;
       const product = await findProductSrv({ slug });
+      return respond(res, product, StatusCodes.OK);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  getAllProductsByStore: (): RequestHandler => async (req, res, next) => {
+    try {
+      const { store_id } = req.params;
+      const product = await findProductsByStoreSrv({ store_id });
       return respond(res, product, StatusCodes.OK);
     } catch (error) {
       next(error);
@@ -138,15 +190,15 @@ const ProductController = {
 
   activateOrDeactivateProduct:
     (status: IStatus): RequestHandler =>
-      async (req, res, next) => {
-        try {
-          const { product_id } = req.query as Record<string, string>;
-          const product = await activateOrDeactivateProductSrv({ id: product_id }, status);
-          return respond(res, product, StatusCodes.OK);
-        } catch (error) {
-          next(error);
-        }
-      },
+    async (req, res, next) => {
+      try {
+        const { product_id } = req.query as Record<string, string>;
+        const product = await activateOrDeactivateProductSrv({ id: product_id }, status);
+        return respond(res, product, StatusCodes.OK);
+      } catch (error) {
+        next(error);
+      }
+    },
 
   deleteProduct: (): RequestHandler => async (req, res, next) => {
     try {
@@ -186,7 +238,7 @@ const ProductController = {
     try {
       const searchString = req.query.search_string;
 
-      const result = await searchProductByName(searchString.toString())
+      const result = await searchProductByName(searchString.toString());
 
       return respond(res, result, StatusCodes.OK);
     } catch (error) {

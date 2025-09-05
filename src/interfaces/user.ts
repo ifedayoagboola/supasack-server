@@ -10,9 +10,10 @@ export interface User {
   is_mobile_verified: boolean;
   sex: string;
   dob: string;
+  address: string;
   profile_cover_img: string;
-  qr_code: string;
-  img_url: string;
+  qr_code?: string;
+  img_url?: string;
   oAuth_channel?: string;
   oAuth_token?: string;
   reset_password_token?: string;

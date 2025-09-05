@@ -41,7 +41,7 @@ export const createOrderItemsRepo = async (orderInfoPayload: OrderInfoPayload) =
       const { product_variant_id, quantity, product_id, product_variant_spec_id, store_id, amount, variant_img_url, size, color } = cartItem;
       const product = products.find((product: Product) => product.id === product_id);
       const { name, description,  category_id, store }  = product;
-      const { category } = categories.find(category => category.id === category_id)
+      const { name:category } = categories.find(category => category.id === category_id)
       const  { brand_name, img_url, logo, slug } = store
       const storeAddress = storeAddresses.find(storeAddress => storeAddress.reference === store_id)
 

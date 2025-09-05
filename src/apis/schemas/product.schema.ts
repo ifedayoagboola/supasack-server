@@ -1,13 +1,22 @@
-import { celebrate, Joi, Segments } from 'celebrate';
+import { celebrate, Joi as CelebrateJoi, Segments } from 'celebrate';
+import JoiDate from '@joi/date';
+
+const Joi = CelebrateJoi.extend(JoiDate);
 
 export const createProductSchema = celebrate(
   {
     [Segments.BODY]: Joi.object().keys({
       name: Joi.string().required().trim(),
-      description: Joi.string().required().trim(),
+      description: Joi.string().trim(),
       category_id: Joi.string().required().trim(),
+      subcategory_id: Joi.string().required().trim(),
       store_id: Joi.string().required().trim(),
-      estimated_delivery_duration: Joi.number().required(),
+      estimated_delivery_duration: Joi.number(),
+      quantity: Joi.number().required(),
+      quantity_alert: Joi.number().required(),
+      price: Joi.number().required(),
+      discount: Joi.number().required(),
+      images: Joi.array().optional(),
       is_organic: Joi.boolean().optional(),
       is_gluten_free: Joi.boolean().optional(),
       is_vegan: Joi.boolean().optional(),
@@ -21,7 +30,10 @@ export const createProductSchema = celebrate(
       serving_size: Joi.string().optional(),
       weight_unit: Joi.string().optional(),
       brand: Joi.string().optional(),
-      expiry_date: Joi.date().optional()
+      slug: Joi.string().optional(),
+      manufacturer: Joi.string().trim(),
+      manufactured_date: Joi.date().format('DD-MM-YYYY').raw().optional(),
+      expiry_date: Joi.date().format('DD-MM-YYYY').raw().optional()
     })
   },
   {
@@ -118,6 +130,17 @@ export const fetchProductVariantSchema = celebrate(
     [Segments.BODY]: Joi.object().keys({
       store_id: Joi.string().trim(),
       product_id: Joi.string().trim()
+    })
+  },
+  {
+    abortEarly: false
+  }
+);
+
+export const fetchProductByStoreSchema = celebrate(
+  {
+    [Segments.PARAMS]: Joi.object({
+      store_id: Joi.string().required().trim()
     })
   },
   {

@@ -10,10 +10,11 @@ export const createStoreSchema = celebrate(
         'string.empty': `{{#label}} is not allowed to be empty`
       }),
       phone_number: Joi.string().required().trim(),
-      state: Joi.string().required().trim(),
-      street: Joi.string().required().trim(),
-      city: Joi.string().required().trim(),
-      img_url: Joi.string().required().trim(),
+      address: Joi.string().required().trim(),
+      state: Joi.string().trim(),
+      street: Joi.string().trim(),
+      city: Joi.string().trim(),
+      img_url: Joi.string().trim(),
       logo: Joi.string().trim()
     })
   },
@@ -28,6 +29,7 @@ export const updateStoreSchema = celebrate(
       brand_name: Joi.string().trim(),
       description: Joi.string().trim(),
       phone_number: Joi.string().trim(),
+      address: Joi.string().trim(),
       state: Joi.string().trim(),
       street: Joi.string().trim(),
       city: Joi.string().trim(),
@@ -40,6 +42,42 @@ export const updateStoreSchema = celebrate(
     abortEarly: false
   }
 );
+
+export const createMerchantStoreSchema = celebrate({
+  [Segments.BODY]: Joi.object({
+    merchantDetails: Joi.object({
+      email: Joi.string().email().required().trim(),
+      first_name: Joi.string().required().trim(),
+      last_name: Joi.string().required().trim(),
+      mobile: Joi.string().trim()
+    }).required(),
+
+    storeDetails: Joi.object({
+      brand_name: Joi.string().required().trim(),
+      description: Joi.string().trim(),
+      email: Joi.string().email().trim(),
+      phone_number: Joi.string().pattern(/^\d+$/).required().trim(),
+      address: Joi.string().required().trim(),
+      postcode: Joi.string().required().trim()
+    }).required()
+  })
+});
+
+export const updateMerchantStoreSchema = celebrate({
+  [Segments.PARAMS]: Joi.object({
+    storeId: Joi.string().required()
+  }),
+  [Segments.BODY]: Joi.object()
+    .keys({
+      brand_name: Joi.string().required().trim(),
+      description: Joi.string().required().trim(),
+      phone_number: Joi.string().pattern(/^\d+$/).required().trim(),
+      email: Joi.string().email().trim(),
+      address: Joi.string().required().trim(),
+      postcode: Joi.string().required().trim()
+    })
+    .required()
+});
 
 export const activateOrDeactivateStoreSchema = celebrate(
   {

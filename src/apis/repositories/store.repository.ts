@@ -8,30 +8,37 @@ import { globalFilter } from '@src/constants';
 
 const prisma = new PrismaClient();
 
-export const createStoreRepo = async (storeDetails: StorePayload) => {
-  const { brand_name, description, state, city, street, phone_number } = storeDetails;
-  
+export const createStoreRepo = async (storeDetails: Partial<StorePayload>) => {
+  const { brand_name, description, phone_number, email, address, postcode } = storeDetails;
+  console.log(storeDetails, 'stroeDetails234');
+
   return await prisma.$transaction(async (trx) => {
     // Create store
     const store = await trx.store.create({
       data: {
         brand_name,
-        description,
+        description: description ?? '',
+        address,
+        phone_number,
+        email,
+        postcode,
         user_id: storeDetails.user_id,
-        status: storeDetails.status ? 'ACTIVE' : 'INACTIVE',
+        status: storeDetails.status,
         slug: storeDetails.slug || brand_name.toLowerCase().replace(/\s+/g, '-')
       }
     });
 
+    console.log(store, 'stroeDetails');
     // Create address
     const addressBook = await trx.addressBook.create({
       data: {
         first_name: store.brand_name,
         last_name: store.brand_name,
         user_id: store.user_id,
-        state,
-        city,
-        street,
+        address: store.address,
+        state: storeDetails?.state || '',
+        city: storeDetails?.city || '',
+        street: storeDetails?.street || '',
         phone_number,
         reference: store.id,
         type: ADDRESS_BOOK_TYPE.STORE_ADDRESS
@@ -61,9 +68,7 @@ export const createStoreRepo = async (storeDetails: StorePayload) => {
 
     return {
       ...store,
-      state: addressBook.state,
-      city: addressBook.city,
-      street: addressBook.street,
+      address: addressBook.address,
       phone_number: addressBook.phone_number,
       store_role: role.role
     };
@@ -71,24 +76,29 @@ export const createStoreRepo = async (storeDetails: StorePayload) => {
 };
 
 export const createStoreSpecialRepo = async (storeDetails: StorePayload) => {
-  const { id, brand_name, description, user_id, status, slug, state, city, street, img_url, phone_number } = storeDetails;
+  const { id, brand_name, description, user_id, status, slug, address, email, postcode, state, city, street, img_url, phone_number } = storeDetails;
   return await prisma.$transaction(async (trx) => {
     const store = await trx.store.create({
       data: {
         id,
         brand_name,
+        phone_number,
         description,
+        address,
+        postcode,
+        email,
         img_url,
         user_id,
-        status: storeDetails.status ? 'ACTIVE' : 'INACTIVE',
+        status: storeDetails.status,
         slug
       }
     });
-    const address = await trx.addressBook.create({
+    const addressBook = await trx.addressBook.create({
       data: {
         first_name: store.brand_name,
         last_name: store.brand_name,
         user_id: store.user_id,
+        address: store.address,
         state,
         city,
         street,
@@ -116,33 +126,42 @@ export const createStoreSpecialRepo = async (storeDetails: StorePayload) => {
     });
     return {
       ...store,
-      state: address.state,
-      city: address.city,
-      street: address.street,
-      phone_number: address.phone_number,
+      address: addressBook.address,
+      phone_number: addressBook.phone_number,
       store_role: role.role
     };
   });
 };
 
 export const updateStoreRepo = async (filters: { id: string }, data: Partial<StorePayload>): Promise<Store> => {
-  const { brand_name, description, state, city, street, img_url, phone_number, slug, status } = data;
+  const { brand_name, description, img_url, phone_number, postcode, slug, email, address: addr, status } = data;
   return await prisma.$transaction(async (trx) => {
     const store_address = await trx.addressBook.findFirst({ where: { reference: filters.id } });
     const address: AddressBook = await trx.addressBook.update({
-      data: { state, city, street, phone_number },
+      data: { phone_number },
       where: { id: store_address.id }
     });
     const store = await trx.store.update({
       data: {
         brand_name,
         description,
+        address: addr,
+        postcode,
+        email,
         img_url,
         slug,
-        status: status ? 'ACTIVE' : 'INACTIVE'
+        status
       },
       where: filters,
       include: {
+        merchant: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+            email: true
+          }
+        },
         store_role: {
           include: {
             role: {
@@ -158,9 +177,6 @@ export const updateStoreRepo = async (filters: { id: string }, data: Partial<Sto
     return {
       ...store,
       store_role: store.store_role[0].role.role,
-      state: address.state,
-      city: address.city,
-      street: address.street,
       phone_number: address.phone_number
     };
   });
@@ -177,9 +193,29 @@ export const softDeleteStoreRepo = async (filters: Partial<Store>): Promise<any>
   });
 };
 
-export const findStoreRepo = async (filter: Partial<Store>): Promise<Store | undefined> => {
-  let store: Store = await prisma.store.findFirst({
-    where: { ...filter, ...globalFilter }
+export const findStoreRepo = async (filter: Partial<Store>): Promise<Partial<Store> | undefined> => {
+  const store: Partial<Store> = await prisma.store.findFirst({
+    where: { ...filter, ...globalFilter },
+    select: {
+      id: true,
+      status: true,
+      brand_name: true,
+      description: true,
+      address: true,
+      postcode: true,
+      phone_number: true,
+      email: true,
+      slug: true,
+      merchant: {
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          email: true,
+          mobile: true
+        }
+      }
+    }
   });
   return store;
 };
@@ -223,9 +259,26 @@ export const findStoresWithWalletRepo = async (filter?: Partial<Store>): Promise
   return stores;
 };
 
-export const fetchStoresRepo = async (filters?: Partial<Store>): Promise<Store[]> => {
+export const fetchStoresRepo = async (filters?: Partial<Store>): Promise<Partial<Store>[]> => {
   const stores = await prisma.store.findMany({
-    where: { ...filters, ...globalFilter }
+    where: { ...filters, ...globalFilter },
+    select: {
+      id: true,
+      status: true,
+      brand_name: true,
+      description: true,
+      address: true,
+      created_at: true,
+      slug: true,
+      merchant: {
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          email: true
+        }
+      }
+    }
   });
   return stores;
 };
@@ -282,7 +335,7 @@ export const deleteStoreRepo = async (filters: { id: string }): Promise<Store> =
   await prisma.product.updateMany({
     data: { isDeleted: true },
     where: { store_id: filters.id }
-  })
+  });
 
   return deletedStore;
 };

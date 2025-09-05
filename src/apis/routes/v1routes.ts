@@ -17,6 +17,7 @@ import wishlistRouter from '../v1/wishlistModule/wishlist.routes';
 import transactionRouter from '../v1/transactionModule.ts/transactions.route';
 import waitlistRouter from '../v1/waitlist/waitlist.route';
 import adminRouter from '../v1/adminModule/admin.route';
+import subcategoryRouter from '../v1/subcategoryModule/subcategories.routes';
 
 const v1Router = Router();
 
@@ -26,6 +27,7 @@ v1Router.use('/wallet', walletRouter);
 v1Router.use('/role', roleRouter);
 v1Router.use('/storeRole', storeRoleRouter);
 v1Router.use('/category', categoryRouter);
+v1Router.use('/subcategory', subcategoryRouter);
 v1Router.use('/product', productRouter);
 v1Router.use('/category', categoryRouter);
 v1Router.use('/payment', paymentRouter);
