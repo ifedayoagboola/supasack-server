@@ -30,6 +30,7 @@ export const createProductSchema = celebrate(
       serving_size: Joi.string().optional(),
       weight_unit: Joi.string().optional(),
       brand: Joi.string().optional(),
+      slug: Joi.string().optional(),
       manufacturer: Joi.string().trim(),
       manufactured_date: Joi.date().format('DD-MM-YYYY').raw().optional(),
       expiry_date: Joi.date().format('DD-MM-YYYY').raw().optional()

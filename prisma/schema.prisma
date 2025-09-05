@@ -118,7 +118,7 @@ model Product {
   quantity         Int              @default(1)
   quantity_alert   Int?
   user_id          String?
-  user             User?            @relation(name: "ProductToUser", fields: [user_id], references: [id])
+  created_by       User?            @relation(name: "ProductToUser", fields: [user_id], references: [id])
   status           String?
   store_id         String
   store            Store            @relation(name: "ProductToStore", fields: [store_id], references: [id])
@@ -332,7 +332,7 @@ model Order {
   size                    String?
   amount                  Decimal
   color                   String?
-  variant_img_url         String
+  variant_img_url         String?
   quantity                Int
   delivery_information    DeliveryInformation? @relation(name: "OrderToDeliveryInformation")
   meta                    Json?

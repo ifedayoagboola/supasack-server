@@ -53,7 +53,7 @@ const ProductController = {
           description,
           slug,
           category_id,
-          user_id: id,
+          user_id: id, //created by
           store_id,
           weight_unit,
           subcategory_id,
